@@ -3,19 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BUDs – Find a study partner for your exam</title>
-  <meta name="description" content="BUDs is a study-partner app for people preparing for USMLE, OET, IELTS and PLAB. Coming soon to iPhone and Android.">
+  <title>BUDs – Join the waitlist for the study-partner app</title>
+  <meta name="description" content="BUDs is a study-partner app for people preparing for USMLE, PLAB, OET and IELTS. Join the waitlist to hear when it launches on iPhone and Android, or to beta test it first.">
   <meta name="theme-color" content="#3BB317">
   <meta property="og:title" content="BUDs – Find a study partner for your exam">
-  <meta property="og:description" content="A study-partner app for USMLE, OET, IELTS and PLAB. Coming soon to iPhone and Android.">
+  <meta property="og:description" content="A study-partner app for USMLE, PLAB, OET and IELTS. Join the waitlist for iPhone and Android.">
   <meta property="og:image" content="https://osamaag.github.io/buds-landing/icon.png">
   <meta property="og:type" content="website">
+  <!-- Only this site's files, Google Fonts and BUDs' Supabase project may load -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; connect-src https://bimbyaniablowenahoep.supabase.co; form-action 'none'; base-uri 'none'; object-src 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://bimbyaniablowenahoep.supabase.co">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="waitlist.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -33,16 +38,137 @@
         <img class="hero-icon" src="icon.png" alt="BUDs app icon" width="128" height="128">
         <h1>Find a study partner for your exam</h1>
         <p class="lead">
-          BUDs is a study-partner app. Tell it which exam you're preparing for and how you
-          like to study, and it suggests people preparing for the same exam who study the way you do.
+          BUDs matches you with people preparing for the same exam who study the way you do.
+          Join the waitlist to hear the moment it launches, or to test it before anyone else.
         </p>
         <ul class="exams" aria-label="Exams">
           <li>USMLE</li>
+          <li>PLAB</li>
           <li>OET</li>
           <li>IELTS</li>
-          <li>PLAB</li>
         </ul>
         <p class="coming-soon">Coming soon to iPhone and Android</p>
+        <p><a class="cta" href="#join">Join the waitlist</a></p>
+        <p class="total-count" id="total-count" hidden></p>
+      </div>
+    </section>
+
+    <section class="join" id="join" aria-labelledby="join-title">
+      <div class="wrap">
+        <div class="join-card">
+          <h2 id="join-title">Join the waitlist</h2>
+          <p class="join-intro">It takes a minute. We'll only email you about the launch and testing.</p>
+
+          <p class="notice" id="no-js">
+            The form needs JavaScript. To join, email
+            <a href="mailto:budsapp.team@gmail.com">budsapp.team@gmail.com</a> instead.
+          </p>
+
+          <form id="waitlist-form" novalidate hidden>
+            <div class="field">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" autocomplete="name" maxlength="100"
+                     required aria-describedby="name-error">
+              <p class="error" id="name-error" aria-live="polite"></p>
+            </div>
+
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" inputmode="email"
+                     maxlength="254" required aria-describedby="email-hint email-error">
+              <p class="hint" id="email-hint">Android beta testers: use the Gmail address signed into your Play Store.</p>
+              <p class="error" id="email-error" aria-live="polite"></p>
+            </div>
+
+            <fieldset class="field">
+              <legend>Your phone</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="phone_type" value="android" required> Android</label>
+                <label class="choice"><input type="radio" name="phone_type" value="iphone"> iPhone</label>
+                <label class="choice"><input type="radio" name="phone_type" value="both"> Both</label>
+              </div>
+              <p class="error" id="phone_type-error" aria-live="polite"></p>
+            </fieldset>
+
+            <div class="field">
+              <label for="exam">Exam you're preparing for</label>
+              <select id="exam" name="exam" required aria-describedby="exam-count exam-error">
+                <option value="">Choose an exam</option>
+                <option>USMLE Step 1</option>
+                <option>USMLE Step 2 CK</option>
+                <option>USMLE Step 3</option>
+                <option>PLAB 1</option>
+                <option>PLAB 2</option>
+                <option>OET</option>
+                <option>IELTS</option>
+              </select>
+              <p class="exam-count" id="exam-count" hidden></p>
+              <p class="error" id="exam-error" aria-live="polite"></p>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="exam_month">Roughly when is your exam?</label>
+                <select id="exam_month" name="exam_month">
+                  <option value="">Not sure yet</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="country">Country</label>
+                <select id="country" name="country" autocomplete="country-name" required
+                        aria-describedby="country-error">
+                  <option value="">Choose your country</option>
+                </select>
+                <p class="error" id="country-error" aria-live="polite"></p>
+              </div>
+            </div>
+
+            <!-- Spam protection: hidden from people, but bots fill it in -->
+            <div class="hp" aria-hidden="true">
+              <label for="website">Website</label>
+              <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+
+            <div class="field">
+              <label class="check">
+                <input type="checkbox" name="beta_tester" aria-describedby="beta-hint">
+                <span>I'd like to beta test before launch</span>
+              </label>
+              <p class="hint" id="beta-hint">
+                Android testers must use the Gmail address signed into their Play Store, because
+                Google Play only lets that account install test versions. iPhone testers get an
+                invite through Apple's TestFlight app.
+              </p>
+            </div>
+
+            <div class="field">
+              <label class="check">
+                <input type="checkbox" name="consent" required aria-describedby="consent-error">
+                <span>I agree that BUDs can email me about the launch and testing. I can ask to be removed anytime.</span>
+              </label>
+              <p class="error" id="consent-error" aria-live="polite"></p>
+            </div>
+
+            <p class="form-status" id="form-status" role="alert" hidden></p>
+
+            <button type="submit" class="button">Join the waitlist</button>
+
+            <p class="small">
+              BUDs is for people aged 18 or older. Read how we handle your details in our
+              <a href="privacy.html">Privacy Policy</a> and <a href="terms.html">Terms of Service</a>.
+            </p>
+          </form>
+
+          <div class="thanks" id="thanks" tabindex="-1" hidden>
+            <h3 id="thanks-title">You're on the list!</h3>
+            <p id="thanks-text"></p>
+            <p class="small">
+              Changed your mind? Email <a href="mailto:budsapp.team@gmail.com">budsapp.team@gmail.com</a>
+              and we'll remove you.
+            </p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -78,7 +204,7 @@
     <section class="contact" aria-labelledby="contact">
       <div class="wrap">
         <h2 id="contact">Get in touch</h2>
-        <p>Questions, feedback or want to hear when BUDs launches? Email us:</p>
+        <p>Questions or feedback? Email us:</p>
         <a class="email" href="mailto:budsapp.team@gmail.com">budsapp.team@gmail.com</a>
       </div>
     </section>
