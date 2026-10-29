@@ -381,16 +381,10 @@ function setStatus(message) {
   status.hidden = !message;
 }
 
-function showThanks(alreadyJoined, email, betaTester) {
+// The same message for new and repeat sign-ups, so the form never reveals
+// whether an email was already on the list (the database doesn't either)
+function showThanks() {
   const thanks = document.getElementById("thanks");
-  document.getElementById("thanks-title").textContent = alreadyJoined
-    ? "You're already on the list"
-    : "You're on the list!";
-  document.getElementById("thanks-text").textContent = alreadyJoined
-    ? `${email} has already joined the BUDs waitlist, so there's nothing more to do. We'll email you when BUDs launches.`
-    : betaTester
-      ? `Thanks for joining. We'll email ${email} when beta testing opens, and again when BUDs launches.`
-      : `Thanks for joining. We'll email ${email} when BUDs launches.`;
   form.hidden = true;
   thanks.hidden = false;
   thanks.focus();
@@ -406,17 +400,15 @@ async function onSubmit(event) {
   button.disabled = true;
   button.textContent = "Joining...";
 
-  const email = data.get("email").trim();
-  const betaTester = data.get("beta_tester") === "on";
   try {
     const result = await rpc("join_waitlist", {
       p_name: data.get("name").trim(),
-      p_email: email,
+      p_email: data.get("email").trim(),
       p_phone_type: data.get("phone_type"),
       p_exam: data.get("exam"),
       p_exam_month: data.get("exam_month") || "",
       p_country: data.get("country"),
-      p_beta_tester: betaTester,
+      p_beta_tester: data.get("beta_tester") === "on",
       p_consent: data.get("consent") === "on",
       // Spam protection: a hidden field people never fill in, and how long
       // the form was open (bots submit at once)
@@ -424,9 +416,9 @@ async function onSubmit(event) {
       p_elapsed_ms: Date.now() - pageOpenedAt,
     });
 
-    if (result === "joined" || result === "already") {
-      showThanks(result === "already", email, betaTester);
-      if (result === "joined") loadCounts();
+    if (result === "joined") {
+      showThanks();
+      loadCounts();
     } else if (result === "too_many") {
       setStatus("Lots of people are signing up from your network right now. Please try again in an hour.");
     } else {
